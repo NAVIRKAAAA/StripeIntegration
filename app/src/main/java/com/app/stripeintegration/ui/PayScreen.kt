@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.rememberPaymentSheet
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun PayScreen(
@@ -41,6 +40,7 @@ fun PayScreen(
 
 
     PayContent(
+        modifier = modifier,
         state = state,
         onPayClick = viewModel::onPayClick,
         onPayItemClick = viewModel::onPayItemClick
