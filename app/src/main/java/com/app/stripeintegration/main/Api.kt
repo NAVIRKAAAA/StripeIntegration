@@ -1,12 +1,13 @@
 package com.app.stripeintegration.main
 
+import com.app.stripeintegration.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-private const val AUTH_TOKEN = "AUTH_TOKEN"
+private const val AUTH_TOKEN = BuildConfig.authToken
 
 data class Customer(
     val id: String

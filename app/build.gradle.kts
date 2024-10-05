@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +20,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
+        val publishableKey = properties.getProperty("publishable_key")
+        val authToken = properties.getProperty("auth_token")
+
+        buildConfigField("String", "publishableKey", "\"$publishableKey\"")
+        buildConfigField("String", "authToken", "\"$authToken\"")
     }
 
     buildTypes {
@@ -72,5 +83,5 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation ("com.google.android.libraries.places:places:2.6.0")
+    implementation("com.google.android.libraries.places:places:2.6.0")
 }

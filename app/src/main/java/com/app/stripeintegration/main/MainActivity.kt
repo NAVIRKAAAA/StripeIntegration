@@ -4,12 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.app.stripeintegration.BuildConfig
 import com.app.stripeintegration.ui.PayScreen
 import com.app.stripeintegration.ui.PayViewModel
 import com.app.stripeintegration.ui.theme.StripeIntegrationTheme
 import com.stripe.android.PaymentConfiguration
 
-const val publishableKey = "publishableKey"
+const val publishableKey = BuildConfig.publishableKey
 
 class MainActivity : ComponentActivity() {
 
