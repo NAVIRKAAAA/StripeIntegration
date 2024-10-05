@@ -1,6 +1,5 @@
 package com.app.stripeintegration.ui
 
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,6 +23,7 @@ fun PayContent(
     state: PayState,
     onPayItemClick: (PayItem) -> Unit,
     onPayClick: () -> Unit,
+    onGooglePayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -30,7 +31,9 @@ fun PayContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LazyRow(
-            modifier = modifier.fillMaxWidth().padding(16.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
         ) {
@@ -48,7 +51,7 @@ fun PayContent(
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
 
         state.paymentResultMessage?.let {
-            Text(text = it)
+            Text(text = it, textAlign = TextAlign.Center)
         }
 
         Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -57,10 +60,18 @@ fun PayContent(
             onClick = onPayClick,
             enabled = state.selectedPayItem != null
         ) {
-            Text("Buy")
+            Text("Pay by Payment form")
         }
 
-        if(state.isLoading) {
+        Button(
+            onClick = onGooglePayClick,
+            enabled = state.selectedPayItem != null
+        ) {
+            Text("Pay by Google Pay")
+        }
+
+
+        if (state.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {

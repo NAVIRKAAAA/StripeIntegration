@@ -5,6 +5,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.stripe.android.googlepaylauncher.GooglePayEnvironment
+import com.stripe.android.googlepaylauncher.GooglePayLauncher
+import com.stripe.android.googlepaylauncher.rememberGooglePayLauncher
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.rememberPaymentSheet
 
@@ -16,11 +19,20 @@ fun PayScreen(
 
     val state by viewModel.state.collectAsState()
     val paymentSheet = rememberPaymentSheet(viewModel::onPaymentSheetResult)
+    val googlePayLauncher = rememberGooglePayLauncher(
+        config = GooglePayLauncher.Config(
+            environment = GooglePayEnvironment.Test,
+            merchantCountryCode = "US",
+            merchantName = "Merchant Name"
+        ),
+        readyCallback = viewModel::onGooglePayReady,
+        resultCallback = viewModel::onGooglePayResult
+    )
 
     LaunchedEffect(Unit) {
         viewModel.event.collect {
             when (it) {
-                PayEvent.SetupPayItem -> {
+                PayEvent.SetupByPaymentForm -> {
                     val configuration = viewModel.getConfiguration()
 
                     val currentClientSecret = state.clientSecret
@@ -28,11 +40,17 @@ fun PayScreen(
                     paymentSheet.presentWithPaymentIntent(
                         currentClientSecret,
                         PaymentSheet.Configuration(
-                            merchantDisplayName = "My merchant name",
+                            merchantDisplayName = "Merchant Name",
                             customer = configuration,
                             allowsDelayedPaymentMethods = true
                         )
                     )
+                }
+
+                PayEvent.SetupByGooglePay -> {
+                    val currentClientSecret = state.clientSecret
+
+                    googlePayLauncher.presentForPaymentIntent(currentClientSecret)
                 }
             }
         }
@@ -43,7 +61,8 @@ fun PayScreen(
         modifier = modifier,
         state = state,
         onPayClick = viewModel::onPayClick,
-        onPayItemClick = viewModel::onPayItemClick
+        onPayItemClick = viewModel::onPayItemClick,
+        onGooglePayClick = viewModel::onGooglePayClick
     )
 
 }
