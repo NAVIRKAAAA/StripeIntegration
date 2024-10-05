@@ -5,11 +5,14 @@ data class PayState(
     val selectedPayItem: PayItem? = null,
     val isLoading: Boolean = false,
 
-    val customerId: String = "",
+    val customerId: String? = null,
     val ephemeralKey: String = "",
     val clientSecret: String = "",
     val paymentResultMessage: String? = null
-)
+) {
+    val paymentButtonsIsEnabled: Boolean
+        get() = selectedPayItem != null && customerId != null
+}
 
 enum class PayItem(val amount: Int) {
     SMALL(100),

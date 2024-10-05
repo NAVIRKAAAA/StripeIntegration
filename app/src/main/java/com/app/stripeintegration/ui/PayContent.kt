@@ -31,6 +31,12 @@ fun PayContent(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Text(
+            text = "Customer ID: ${state.customerId}",
+            modifier = Modifier.padding(16.dp)
+        )
+
         LazyRow(
             modifier = modifier
                 .fillMaxWidth()
@@ -59,21 +65,21 @@ fun PayContent(
 
         Button(
             onClick = onPayClick,
-            enabled = state.selectedPayItem != null
+            enabled = state.paymentButtonsIsEnabled
         ) {
             Text("Pay by Payment form")
         }
 
         Button(
             onClick = onGooglePayClick,
-            enabled = state.selectedPayItem != null
+            enabled = state.paymentButtonsIsEnabled
         ) {
             Text("Pay by Google Pay")
         }
 
         Button(
             onClick = onAddressPayClick,
-            enabled = state.selectedPayItem != null
+            enabled = state.paymentButtonsIsEnabled
         ) {
             Text("Pay by Address")
         }
