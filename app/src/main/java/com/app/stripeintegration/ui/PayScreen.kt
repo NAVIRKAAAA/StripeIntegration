@@ -52,12 +52,20 @@ fun PayScreen(
                     googlePayLauncher.presentForPaymentIntent(currentClientSecret)
                 }
 
-                PayEvent.SetupByAddress -> {
-                    val configuration = viewModel.getAddressPaymentConfiguration()
+                PayEvent.SetupAddAddress -> {
+                    val configuration = viewModel.getAddAddressConfiguration()
 
                     addressLauncher.present(
                         publishableKey = publishableKey,
                         configuration = configuration
+                    )
+                }
+
+                PayEvent.SetupAddNewPaymentMethod -> {
+                    val currentClientSecret = state.clientSecret
+
+                    paymentSheet.presentWithSetupIntent(
+                        setupIntentClientSecret = currentClientSecret
                     )
                 }
             }
@@ -71,7 +79,8 @@ fun PayScreen(
         onPayClick = viewModel::onPayClick,
         onPayItemClick = viewModel::onPayItemClick,
         onGooglePayClick = viewModel::onGooglePayClick,
-        onAddressPayClick = viewModel::onAddressPayClick
+        onAddAddressClick = viewModel::onAddAddressClick,
+        onAddNewPaymentMethod = viewModel::onAddNewPaymentMethod
     )
 
 }

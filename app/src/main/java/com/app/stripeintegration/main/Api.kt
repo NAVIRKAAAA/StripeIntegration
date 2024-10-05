@@ -23,6 +23,11 @@ data class PaymentIntent(
     val client_secret: String
 )
 
+data class SetupIntent(
+    val id: String,
+    val client_secret: String
+)
+
 interface Api {
 
     @Headers("Authorization: Bearer $AUTH_TOKEN")
@@ -46,6 +51,13 @@ interface Api {
         @Query("currency") currency: String,
         @Query("automatic_payment_methods[enabled]") automatePay: Boolean
     ): PaymentIntent
+
+    @Headers("Authorization: Bearer $AUTH_TOKEN")
+    @POST("v1/setup_intents")
+    suspend fun getSetupIntent(
+        @Query("customer") customer: String,
+        @Query("automatic_payment_methods[enabled]") automatePay: Boolean
+    ): SetupIntent
 }
 
 fun getApi(): Api {

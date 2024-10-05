@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.stripeintegration.main.getApi
 import com.app.stripeintegration.util.CustomerIdManager
-import com.app.stripeintegration.util.MessageManager
 import com.app.stripeintegration.util.apiHandler
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.addresselement.AddressLauncher
@@ -18,7 +17,8 @@ import kotlinx.coroutines.launch
 sealed class PayEvent {
     data object SetupByPaymentForm : PayEvent()
     data object SetupByGooglePay : PayEvent()
-    data object SetupByAddress : PayEvent()
+    data object SetupAddAddress : PayEvent()
+    data object SetupAddNewPaymentMethod : PayEvent()
 }
 
 class PayViewModel(
@@ -26,7 +26,6 @@ class PayViewModel(
 ) : ViewModel() {
 
     private val api = getApi()
-    private val messageManager = MessageManager()
 
     private val _state = MutableStateFlow(PayState())
     val state = _state.asStateFlow()
@@ -38,6 +37,19 @@ class PayViewModel(
             apiHandler { setCustomerId() }
         }
     }
+
+
+    fun onAddNewPaymentMethod() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            apiHandler {
+                setEphemeralKey()
+                setSetupIntent()
+            }
+            event.emit(PayEvent.SetupAddNewPaymentMethod)
+        }
+    }
+
 
     fun getCardPaymentConfiguration(): PaymentSheet.Configuration? {
         val customerId = state.value.customerId ?: return null
@@ -53,7 +65,7 @@ class PayViewModel(
         )
     }
 
-    fun getAddressPaymentConfiguration(): AddressLauncher.Configuration {
+    fun getAddAddressConfiguration(): AddressLauncher.Configuration {
         val configuration = AddressLauncher.Configuration(
             allowedCountries = setOf("US", "CA", "GB"),
             title = "Shipping Address",
@@ -72,30 +84,39 @@ class PayViewModel(
     fun onPayClick() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            apiHandler { setEphemeralKey() }
+            apiHandler {
+                setEphemeralKey()
+                setPaymentIntent()
+            }
             event.emit(PayEvent.SetupByPaymentForm)
         }
     }
 
-    fun onAddressPayClick() {
+    fun onAddAddressClick() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            apiHandler { setEphemeralKey() }
-            event.emit(PayEvent.SetupByAddress)
+            apiHandler {
+                setEphemeralKey()
+                setPaymentIntent()
+            }
+            event.emit(PayEvent.SetupAddAddress)
         }
     }
 
     fun onGooglePayClick() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            apiHandler { setEphemeralKey() }
+            apiHandler {
+                setEphemeralKey()
+                setPaymentIntent()
+            }
             event.emit(PayEvent.SetupByGooglePay)
         }
     }
 
     private suspend fun setCustomerId() {
         val savedCustomerId = customerIdManager.get().first()
-        val customerId = if(savedCustomerId == null) {
+        val customerId = if (savedCustomerId == null) {
             val id = api.getCustomer().id
             customerIdManager.set(id)
             id
@@ -111,7 +132,6 @@ class PayViewModel(
         val result = api.getEphemeralKey(customerId)
 
         _state.update { it.copy(ephemeralKey = result.secret) }
-        setPaymentIntent()
     }
 
     private suspend fun setPaymentIntent() {
@@ -124,6 +144,14 @@ class PayViewModel(
         _state.update { it.copy(clientSecret = result.client_secret, isLoading = false) }
     }
 
+    private suspend fun setSetupIntent() {
+        val customerId = state.value.customerId ?: return
+
+        val result = api.getSetupIntent(customerId, true)
+
+        _state.update { it.copy(clientSecret = result.client_secret, isLoading = false) }
+    }
+
     fun onGooglePayReady(isReady: Boolean) {
         viewModelScope.launch {
             _state.update { it.copy(paymentResultMessage = "Google Pay is ready: $isReady") }
@@ -132,9 +160,7 @@ class PayViewModel(
 
     fun <T : Any> onResult(result: T) {
         viewModelScope.launch {
-            val message = messageManager.getByResult(result)
-            _state.update { it.copy(paymentResultMessage = message) }
+            _state.update { it.copy(paymentResultMessage = "Result: $result") }
         }
     }
-
 }

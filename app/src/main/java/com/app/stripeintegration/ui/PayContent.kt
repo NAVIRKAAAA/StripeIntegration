@@ -23,8 +23,9 @@ fun PayContent(
     state: PayState,
     onPayItemClick: (PayItem) -> Unit,
     onPayClick: () -> Unit,
-    onAddressPayClick: () -> Unit,
+    onAddAddressClick: () -> Unit,
     onGooglePayClick: () -> Unit,
+    onAddNewPaymentMethod: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -78,10 +79,19 @@ fun PayContent(
         }
 
         Button(
-            onClick = onAddressPayClick,
+            onClick = onAddAddressClick,
             enabled = state.paymentButtonsIsEnabled
         ) {
-            Text("Pay by Address")
+            Text("Add Address")
+        }
+
+        Spacer(modifier = Modifier.padding(vertical = 8.dp))
+
+        Button(
+            onClick = onAddNewPaymentMethod,
+            enabled = state.customerId != null
+        ) {
+            Text("Add new Payment Method")
         }
 
 
