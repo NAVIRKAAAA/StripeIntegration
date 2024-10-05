@@ -1,6 +1,5 @@
 package com.app.stripeintegration.main
 
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Headers
@@ -27,7 +26,7 @@ interface Api {
 
     @Headers("Authorization: Bearer $AUTH_TOKEN")
     @POST("v1/customers")
-    suspend fun getCustomer(): Response<Customer>
+    suspend fun getCustomer(): Customer
 
     @Headers(
         "Authorization: Bearer $AUTH_TOKEN",
@@ -36,7 +35,7 @@ interface Api {
     @POST("v1/ephemeral_keys")
     suspend fun getEphemeralKey(
         @Query("customer") customer: String
-    ): Response<EphemeralKey>
+    ): EphemeralKey
 
     @Headers("Authorization: Bearer $AUTH_TOKEN")
     @POST("v1/payment_intents")
@@ -45,7 +44,7 @@ interface Api {
         @Query("amount") amount: Int,
         @Query("currency") currency: String,
         @Query("automatic_payment_methods[enabled]") automatePay: Boolean
-    ): Response<PaymentIntent>
+    ): PaymentIntent
 }
 
 fun getApi(): Api {

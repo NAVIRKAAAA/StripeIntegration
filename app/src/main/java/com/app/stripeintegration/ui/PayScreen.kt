@@ -19,7 +19,7 @@ fun PayScreen(
 ) {
 
     val state by viewModel.state.collectAsState()
-    val paymentSheet = rememberPaymentSheet(viewModel::onPaymentSheetResult)
+    val paymentSheet = rememberPaymentSheet(viewModel::onResult)
     val googlePayLauncher = rememberGooglePayLauncher(
         config = GooglePayLauncher.Config(
             environment = GooglePayEnvironment.Test,
@@ -27,10 +27,10 @@ fun PayScreen(
             merchantName = "Merchant Name"
         ),
         readyCallback = viewModel::onGooglePayReady,
-        resultCallback = viewModel::onGooglePayResult
+        resultCallback = viewModel::onResult
     )
     val addressLauncher = rememberAddressLauncher(
-        callback = viewModel::onPaymentAddressResult
+        callback = viewModel::onResult
     )
 
     LaunchedEffect(Unit) {
