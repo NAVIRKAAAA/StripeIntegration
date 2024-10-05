@@ -6,6 +6,8 @@ import com.app.stripeintegration.main.getApi
 import com.stripe.android.googlepaylauncher.GooglePayLauncher
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.addresselement.AddressLauncher
+import com.stripe.android.paymentsheet.addresselement.AddressLauncherResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 sealed class PayEvent {
     data object SetupByPaymentForm : PayEvent()
     data object SetupByGooglePay : PayEvent()
+    data object SetupByAddress : PayEvent()
 }
 
 class PayViewModel : ViewModel() {
@@ -27,10 +30,24 @@ class PayViewModel : ViewModel() {
 
     val event = MutableSharedFlow<PayEvent>()
 
-    fun getConfiguration(): PaymentSheet.CustomerConfiguration {
-        val configuration = PaymentSheet.CustomerConfiguration(
+    fun getCardPaymentConfiguration(): PaymentSheet.Configuration {
+        val customerConfiguration = PaymentSheet.CustomerConfiguration(
             id = state.value.customerId,
             ephemeralKeySecret = state.value.ephemeralKey
+        )
+
+        return PaymentSheet.Configuration(
+            merchantDisplayName = "Merchant Name",
+            customer = customerConfiguration,
+            allowsDelayedPaymentMethods = true
+        )
+    }
+
+    fun getAddressPaymentConfiguration(): AddressLauncher.Configuration {
+        val configuration = AddressLauncher.Configuration(
+            allowedCountries = setOf("US", "CA", "GB"),
+            title = "Shipping Address",
+            autocompleteCountries = setOf()
         )
 
         return configuration
@@ -49,6 +66,16 @@ class PayViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             setCustomerId()
             event.emit(PayEvent.SetupByPaymentForm)
+        }
+    }
+
+    fun onAddressPayClick() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            setCustomerId()
+            event.emit(PayEvent.SetupByAddress)
         }
     }
 
@@ -90,6 +117,12 @@ class PayViewModel : ViewModel() {
         }
     }
 
+    fun onGooglePayReady(isReady: Boolean) {
+        viewModelScope.launch {
+            _state.update { it.copy(paymentResultMessage = "Google Pay is ready: $isReady") }
+        }
+    }
+
     fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
         viewModelScope.launch {
             when (paymentSheetResult) {
@@ -108,12 +141,6 @@ class PayViewModel : ViewModel() {
         }
     }
 
-    fun onGooglePayReady(isReady: Boolean) {
-        viewModelScope.launch {
-            _state.update { it.copy(paymentResultMessage = "Google Pay is ready: $isReady") }
-        }
-    }
-
     fun onGooglePayResult(result: GooglePayLauncher.Result) {
         viewModelScope.launch {
             when (result) {
@@ -127,6 +154,20 @@ class PayViewModel : ViewModel() {
 
                 is GooglePayLauncher.Result.Failed -> {
                     _state.update { it.copy(paymentResultMessage = "GooglePayLauncher.Result.Failed: ${result.error}") }
+                }
+            }
+        }
+    }
+
+    fun onPaymentAddressResult(addressLauncherResult: AddressLauncherResult) {
+        viewModelScope.launch {
+            when (addressLauncherResult) {
+                AddressLauncherResult.Canceled -> {
+                    _state.update { it.copy(paymentResultMessage = "AddressLauncherResult.Canceled") }
+                }
+
+                is AddressLauncherResult.Succeeded -> {
+                    _state.update { it.copy(paymentResultMessage = "AddressLauncherResult.Succeeded: ${addressLauncherResult.address}") }
                 }
             }
         }

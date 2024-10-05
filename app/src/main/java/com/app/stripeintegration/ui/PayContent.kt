@@ -23,6 +23,7 @@ fun PayContent(
     state: PayState,
     onPayItemClick: (PayItem) -> Unit,
     onPayClick: () -> Unit,
+    onAddressPayClick: () -> Unit,
     onGooglePayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -68,6 +69,13 @@ fun PayContent(
             enabled = state.selectedPayItem != null
         ) {
             Text("Pay by Google Pay")
+        }
+
+        Button(
+            onClick = onAddressPayClick,
+            enabled = state.selectedPayItem != null
+        ) {
+            Text("Pay by Address")
         }
 
 

@@ -9,9 +9,9 @@ import com.app.stripeintegration.ui.PayViewModel
 import com.app.stripeintegration.ui.theme.StripeIntegrationTheme
 import com.stripe.android.PaymentConfiguration
 
-class MainActivity : ComponentActivity() {
-    private val publishableKey = "publishableKey"
+const val publishableKey = "publishableKey"
 
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
