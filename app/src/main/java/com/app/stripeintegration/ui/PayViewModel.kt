@@ -61,7 +61,8 @@ class PayViewModel(
         return PaymentSheet.Configuration(
             merchantDisplayName = "Merchant Name",
             customer = customerConfiguration,
-            allowsDelayedPaymentMethods = true
+            allowsDelayedPaymentMethods = true,
+            appearance = paymentSheetAppearance
         )
     }
 
